@@ -1,6 +1,6 @@
 import optparse
 import json
-import os
+import os,sys
 from socket import *
 #定义一个客户端类
 class ClientHandler():
@@ -132,6 +132,7 @@ class ClientHandler():
                 self.sock.sendall("N".encode("utf8"))
         elif file_status == "801":
             #文件完全存在直接返回
+            print("文件已存在")
             return
         #打开一个文件句柄
         f = open(local_path,"rb")
@@ -145,10 +146,29 @@ class ClientHandler():
             self.sock.sendall(data)
             #已发送的大小 = 已发送大小 + 本次发送大小
             has_sent+=len(data)
+            #进度条
+            self.show_progress(has_sent,file_size)
 
         #关闭文件句柄
         f.close()
         print("发送完成")
+
+    #进度条方法
+    def show_progress(self,has,total):
+        #传输百分比
+        rate = float(has)/float(total)
+        #转化为整数
+        rate_number = int(rate*100)
+
+        # if self.last != rate_number:
+        sys.stdout.write("%s%% %s\r"%(rate_number,"#"*rate_number))
+        #
+        # self.last = rate_number
+
+    def ls(self):
+        pass
+
+
 #实例化一个客户端连接
 ch = ClientHandler()
 

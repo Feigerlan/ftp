@@ -133,5 +133,8 @@ class ServerHandler(socketserver.BaseRequestHandler):
             has_received+=len(data)
         f.close()
 
+    def ls(self):
+        pass
+
     def get(self,**data):
         pass
