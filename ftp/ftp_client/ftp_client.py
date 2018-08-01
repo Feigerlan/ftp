@@ -81,13 +81,16 @@ class ClientHandler():
         if self.authenticate():
             print("开始使用ftp...")
             #接收命令信息
-            cmd_info = input("[%s]"%self.username).strip()
-            #把接收到的命令做分割为一个命令元组，默认以空格为分隔符
-            cmd_list = cmd_info.split()
-            #反射检测客户端类中是否有命令所对应的方法，如果有，则调用
-            if hasattr(self,cmd_list[0]):
-                func=getattr(self,cmd_list[0])
-                func(*cmd_list)
+            while 1:
+                cmd_info = input("[%s]"%self.username).strip()
+                #把接收到的命令做分割为一个命令元组，默认以空格为分隔符
+                cmd_list = cmd_info.split()
+                #反射检测客户端类中是否有命令所对应的方法，如果有，则调用
+                if hasattr(self,cmd_list[0]):
+                    func=getattr(self,cmd_list[0])
+                    func(*cmd_list)
+                else:
+                    print("无效命令")
 
     #put命令对应的方法
     def put(self,*cmd_list):
@@ -165,8 +168,26 @@ class ClientHandler():
         #
         # self.last = rate_number
 
-    def ls(self):
-        pass
+    def ls(self,*cmd_list):
+        data = {
+            "action" : "ls",
+        }
+        self.sock.sendall(json.dumps(data).encode("utf8"))
+
+        data = self.sock.recv(1024).decode("utf8")
+
+        print(data)
+
+    def cd(self,*cmd_list):
+        data = {
+             "action" : "cd",
+             "dirname" : cmd_list[1]
+         }
+
+        self.sock.sendall(json.dumps(data).encode("utf8"))
+
+        data = self.sock.recv(1024).decode("utf8")
+        print(os.path.basename(data))
 
 
 #实例化一个客户端连接

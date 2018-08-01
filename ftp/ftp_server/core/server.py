@@ -133,8 +133,23 @@ class ServerHandler(socketserver.BaseRequestHandler):
             has_received+=len(data)
         f.close()
 
-    def ls(self):
-        pass
+    def ls(self,**data):
+        file_list = os.listdir(self.mainPath)
+        file_str = "\n".join(file_list)
+        if not len(file_list):
+            file_str="<空>"
+        self.request.sendall(file_str.encode("utf8"))
+
+
+    def cd(self,**data):
+        dirname = data.get("dirname")
+
+        if dirname == "..":
+            self.mainPath = os.path.dirname(self.mainPath)
+        else:
+            self.mainPath = os.path.join(self.mainPath,dirname)
+
+        self.request.sendall(self.mainPath.encode("utf8"))
 
     def get(self,**data):
         pass
